@@ -46,7 +46,6 @@ public class ShortestPath {
         while(!open.isEmpty()){
 
             var current = open.remove();
-
             if(matrix[current.x][current.y] == 'D' ) {
                 System.out.println(closed);
                 System.out.println("Finish");
