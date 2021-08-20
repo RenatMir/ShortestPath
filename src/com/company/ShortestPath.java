@@ -88,6 +88,7 @@ public class ShortestPath {
     }
 
     public static void main(String[] args){
+
         char[][] matrix = {
                 {'S', '0', '1', '1', '1', '1', '0','0'},
                 {'1', '0', '1', '0', '0', '1', '0','0'},
@@ -98,8 +99,9 @@ public class ShortestPath {
                 {'0', '0', '1', '0', '0', '0', '1','D'},
                 {'0', '0', '0', '0', '0', '0', '0','0'},
         };
-        var x = new ShortestPath();
-        x.Dijkstra(matrix);
+        /*var x = new ShortestPath();
+        x.Dijkstra(matrix);*/
+        MyFrame myFrame = new MyFrame();
     }
     public class Node {
         int x, y;
