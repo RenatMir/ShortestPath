@@ -42,10 +42,14 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         for(int i = 0; i < NUM_OF_COLS; i++)
             for(int j = 0; j < NUM_OF_COLS; j++)
                 matrix[i][j] = new Node(i,j);
-        matrix[5][5].isWall = true;
-        matrix[4][5].isWall = true;
-        matrix[6][6].isWall = true;
+
         matrix[7][6].isWall = true;
+        matrix[6][6].isWall = true;
+        matrix[5][6].isWall = true;
+        matrix[4][6].isWall = true;
+        matrix[3][6].isWall = true;
+        matrix[2][6].isWall = true;
+        matrix[1][6].isWall = true;
 
     }
     public void paintComponent(Graphics g){

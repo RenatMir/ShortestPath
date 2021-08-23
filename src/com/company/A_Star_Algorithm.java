@@ -6,13 +6,15 @@ public class A_Star_Algorithm {
     boolean hasNeighbor;
     boolean[][] isVisited;
     int length;
-    Node start, finish;
+    Node start;
+    Node finish;
     ContentPane pane;
 
 
     public void a_Star(Node[][] matrix, Node start, Node finish, ContentPane pane){
         this.pane = pane;
         this.start = start;
+        start.setParent(null);
         this.finish = finish;
         length = matrix.length;
         isVisited = new boolean[length][length];
@@ -37,33 +39,38 @@ public class A_Star_Algorithm {
                     }
                 };
 
-                List<Node> closed = new LinkedList<>();
+                List<Node> closed = new ArrayList<>();
                 Queue<Node> open = new PriorityQueue<>(stringLengthComparator);
 
-                open.add(matrix[start.x][start.y]);
-                closed.add(matrix[start.x][start.y]);
+                open.add(start);
 
                 while(!open.isEmpty()){
                     var current = open.remove();
-                    if(matrix[current.x][current.y] == matrix[finish.x][finish.y]) {
-                        System.out.println(closed);
+                    if(matrix[current.x][current.y] == finish) {
                         System.out.println("Finish");
 
-                        for(Node node : closed){
-                            node.closed = true;
+                        while(matrix[current.x][current.y].getParent() != null){
+                            closed.add(matrix[current.x][current.y]);
+                            matrix[current.x][current.y].closed = true;
                             try {
-                                Thread.sleep(20);
+                                Thread.sleep(200);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                             pane.repaint();
+                            matrix[current.x][current.y] = matrix[current.x][current.y].getParent();
                         }
+                        closed.add(start);
+                        Collections.reverse(closed);
+                        System.out.println(closed);
+
+
                         break;
                     }
                     else {
                         isVisited[current.x][current.y] = true;
                         chooseNeighbor(current, matrix, open);
-                        closed.add(open.peek());
+                        //closed.add(open.peek());
                     }
                 }
                 return null;
@@ -105,8 +112,10 @@ public class A_Star_Algorithm {
             hasNeighbor = true;
             open.add(matrix[current.x + x][current.y + y]);
             matrix[current.x + x][current.y + y].open = true;
+            matrix[current.x + x][current.y + y].setParent(current);
+
             try {
-                Thread.sleep(20);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
