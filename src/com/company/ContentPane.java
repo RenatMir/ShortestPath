@@ -36,9 +36,6 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         leftPanel.setBackground(Color.lightGray);
         leftPanel.setPreferredSize(new Dimension(LEFT_PANEL_WIDTH, HEIGHT));
 
-        initializeMatrix();
-
-
         leftPanel = new JPanel();
         leftPanel.setLayout(null);
         leftPanel.setPreferredSize(new Dimension(LEFT_PANEL_WIDTH,HEIGHT));
@@ -58,6 +55,11 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
         leftPanel.add(startFinish);
         leftPanel.add(startButton);
+
+
+
+        initializeMatrix();
+        //randomObstacles();
     }
 
     public void initializeMatrix(){
@@ -65,6 +67,12 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         for(int i = 0; i < NUM_OF_COLS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
                 matrix[i][j] = new Node(i, j);
+            }
+        }
+    }
+    public void randomObstacles(){
+        for(int i = 0; i < NUM_OF_COLS; i++) {
+            for (int j = 0; j < NUM_OF_COLS; j++) {
                 if(random.nextInt(10) < 3)
                     matrix[i][j].isWall = true;
             }
@@ -151,7 +159,11 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        int Y = e.getX() / CELL_WIDTH;
+        int X = e.getY() / CELL_WIDTH;
 
+        matrix[X][Y].isWall = true;
+        repaint();
 
     }
 
