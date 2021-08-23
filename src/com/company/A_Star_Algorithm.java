@@ -1,6 +1,4 @@
 package com.company;
-
-import com.company.ContentPane.Node;
 import java.util.*;
 
 public class A_Star_Algorithm {
