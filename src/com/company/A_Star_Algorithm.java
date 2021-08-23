@@ -59,7 +59,6 @@ public class A_Star_Algorithm {
         return (int)(calculateH(x,y) + calculateG(x,y)) * 10;
     }
 
-
     public void chooseNeighbor(Node current, Node[][] matrix, Queue<Node> open){
         hasNeighbor = false;
         checkNodeValid(current, -1,-1,matrix, open);
