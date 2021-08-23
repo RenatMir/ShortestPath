@@ -3,15 +3,17 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 
 public class ContentPane extends JPanel implements MouseListener, ActionListener, MouseMotionListener {
 
     private static final int LEFT_PANEL_WIDTH = 200;
     private static final int RIGHT_PANEL_WIDTH = 600;
     private static final int HEIGHT = 600;
-    private static int NUM_OF_COLS = 8;
+    private static int NUM_OF_COLS = 30;
     private static int CELL_WIDTH = RIGHT_PANEL_WIDTH / NUM_OF_COLS;
 
+    Random random;
     protected Node start;
     protected Node finish;
 
@@ -24,6 +26,8 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         addMouseListener(this);
         addMouseMotionListener(this);
 
+        random = new Random();
+
         leftPanel = new JPanel();
         leftPanel.setBackground(Color.lightGray);
         leftPanel.setPreferredSize(new Dimension(LEFT_PANEL_WIDTH, HEIGHT));
@@ -31,7 +35,14 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         initializeMatrix();
 
         start = matrix[0][0];
-        finish = matrix[7][7];
+        finish = matrix[29][29];
+
+        leftPanel = new JPanel();
+        leftPanel.setLayout(null);
+        leftPanel.setPreferredSize(new Dimension(LEFT_PANEL_WIDTH,HEIGHT));
+        leftPanel.setBackground(Color.WHITE);
+        leftPanel.setBorder(
+                BorderFactory.createTitledBorder("Controls"));
 
         new A_Star_Algorithm().a_Star(matrix, start, finish, this);
 
@@ -40,16 +51,11 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     public void initializeMatrix(){
         matrix = new Node[NUM_OF_COLS][NUM_OF_COLS];
         for(int i = 0; i < NUM_OF_COLS; i++)
-            for(int j = 0; j < NUM_OF_COLS; j++)
-                matrix[i][j] = new Node(i,j);
-
-        matrix[7][6].isWall = true;
-        matrix[6][6].isWall = true;
-        matrix[5][6].isWall = true;
-        matrix[4][6].isWall = true;
-        matrix[3][6].isWall = true;
-        matrix[2][6].isWall = true;
-        matrix[1][6].isWall = true;
+            for(int j = 0; j < NUM_OF_COLS; j++) {
+                matrix[i][j] = new Node(i, j);
+                if(random.nextInt(10) < 3)
+                    matrix[i][j].isWall = true;
+            }
 
     }
     public void paintComponent(Graphics g){

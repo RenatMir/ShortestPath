@@ -44,8 +44,10 @@ public class A_Star_Algorithm {
 
                 open.add(start);
 
-                while(!open.isEmpty()){
+                do{
+
                     var current = open.remove();
+
                     if(matrix[current.x][current.y] == finish) {
                         System.out.println("Finish");
 
@@ -53,7 +55,7 @@ public class A_Star_Algorithm {
                             closed.add(matrix[current.x][current.y]);
                             matrix[current.x][current.y].closed = true;
                             try {
-                                Thread.sleep(200);
+                                Thread.sleep(2);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -63,16 +65,17 @@ public class A_Star_Algorithm {
                         closed.add(start);
                         Collections.reverse(closed);
                         System.out.println(closed);
-
-
                         break;
                     }
                     else {
                         isVisited[current.x][current.y] = true;
                         chooseNeighbor(current, matrix, open);
-                        //closed.add(open.peek());
                     }
-                }
+                    if(open.isEmpty()) {
+                        System.out.println("There is no path");
+                        break;
+                    }
+                }while (!open.isEmpty());
                 return null;
             }
         };swingWorker.execute();
@@ -115,7 +118,7 @@ public class A_Star_Algorithm {
             matrix[current.x + x][current.y + y].setParent(current);
 
             try {
-                Thread.sleep(200);
+                Thread.sleep(2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
