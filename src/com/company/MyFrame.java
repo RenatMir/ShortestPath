@@ -18,4 +18,8 @@ public class MyFrame extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
     }
+    public static void main(String[] args){
+        new MyFrame();
+        //new A_Star_Algorithm().a_Star(matrix);
+    }
 }
