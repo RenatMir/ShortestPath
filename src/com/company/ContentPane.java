@@ -66,18 +66,7 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         g.setColor(Color.red);
         g.fillRect(CELL_WIDTH * NUM_OF_COLS - CELL_WIDTH + 1, CELL_WIDTH * NUM_OF_COLS - CELL_WIDTH + 1, CELL_WIDTH-1, CELL_WIDTH-1);
     }
-    class Node {
-        int x, y;
-        boolean isWall = false;
-        Node(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-        @Override
-        public String toString(){
-            return ("(x: " + x + " y: " + y  + ")");
-        }
-    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
 
