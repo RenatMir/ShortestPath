@@ -3,6 +3,7 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 import java.util.Random;
 
 public class ContentPane extends JPanel implements MouseListener, ActionListener, MouseMotionListener {
@@ -10,7 +11,7 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     private static final int LEFT_PANEL_WIDTH = 200;
     private static final int RIGHT_PANEL_WIDTH = 600;
     private static final int HEIGHT = 600;
-    private static int NUM_OF_COLS = 30;
+    private static int NUM_OF_COLS = 12;
     private static int CELL_WIDTH = RIGHT_PANEL_WIDTH / NUM_OF_COLS;
 
     Random random;
@@ -18,7 +19,10 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     protected Node finish;
 
     private Node[][] matrix;
+
     JPanel leftPanel;
+    JButton startButton;
+    JComboBox<String> startFinish;
 
     ContentPane(){
         setPreferredSize(new Dimension(RIGHT_PANEL_WIDTH, HEIGHT));
@@ -34,8 +38,6 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
         initializeMatrix();
 
-        start = matrix[0][0];
-        finish = matrix[29][29];
 
         leftPanel = new JPanel();
         leftPanel.setLayout(null);
@@ -44,19 +46,29 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         leftPanel.setBorder(
                 BorderFactory.createTitledBorder("Controls"));
 
-        new A_Star_Algorithm().a_Star(matrix, start, finish, this);
+        startButton = new JButton("Start");
+        startButton.setFocusable(false);
+        startButton.addActionListener(this);
+        startButton.setBounds(20,20,100,50);
 
+        String[] string = {"Start", "Finish"};
+        startFinish = new JComboBox<>(string);
+        startFinish.setBounds(20,100,150,50);
+        startFinish.addActionListener(this);
+
+        leftPanel.add(startFinish);
+        leftPanel.add(startButton);
     }
 
     public void initializeMatrix(){
         matrix = new Node[NUM_OF_COLS][NUM_OF_COLS];
-        for(int i = 0; i < NUM_OF_COLS; i++)
-            for(int j = 0; j < NUM_OF_COLS; j++) {
+        for(int i = 0; i < NUM_OF_COLS; i++) {
+            for (int j = 0; j < NUM_OF_COLS; j++) {
                 matrix[i][j] = new Node(i, j);
                 if(random.nextInt(10) < 3)
                     matrix[i][j].isWall = true;
             }
-
+        }
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -77,21 +89,46 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
                 g.fillRect(j*CELL_WIDTH + 1,i * CELL_WIDTH + 1,CELL_WIDTH-1, CELL_WIDTH-1);
             }
         }
-        g.setColor(Color.green);
-        g.fillRect(1, 1, CELL_WIDTH-1, CELL_WIDTH-1);
-
-        g.setColor(Color.red);
-        g.fillRect(CELL_WIDTH * NUM_OF_COLS - CELL_WIDTH + 1, CELL_WIDTH * NUM_OF_COLS - CELL_WIDTH + 1, CELL_WIDTH-1, CELL_WIDTH-1);
+        if(start != null) {
+            g.setColor(Color.green);
+            g.fillRect(start.y * CELL_WIDTH + 1, start.x * CELL_WIDTH + 1, CELL_WIDTH - 1, CELL_WIDTH - 1);
+        }
+        if(finish != null) {
+            g.setColor(Color.red);
+            g.fillRect(finish.y * CELL_WIDTH + 1, finish.x * CELL_WIDTH + 1, CELL_WIDTH - 1, CELL_WIDTH - 1);
+        }
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        if(Objects.equals(startFinish.getSelectedItem(), "Start")) {
+            int startY = e.getX() / CELL_WIDTH;
+            int startX = e.getY() / CELL_WIDTH;
 
-        /*startY = e.getX()/CELL_WIDTH;
-        startX = e.getY()/CELL_WIDTH;
-        System.out.println( startX+ " " + startY);
-        repaint();*/
+            if(!matrix[startX][startY].isWall) {
+                start = matrix[startX][startY];
+            }
+        }
+        else if(Objects.equals(startFinish.getSelectedItem(), "Finish")){
+            int endY = e.getX() / CELL_WIDTH;
+            int endX = e.getY() / CELL_WIDTH;
+
+            if(!matrix[endX][endY].isWall)
+                finish = matrix[endX][endY];
+        }
+
+        repaint();
     }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == startButton){
+            new A_Star_Algorithm().a_Star(matrix, start, finish, this);
+        }
+        if(e.getSource() == startFinish)
+            System.out.println(startFinish.getSelectedItem());
+    }
+
     @Override
     public void mousePressed(MouseEvent e) {
 
@@ -109,11 +146,6 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
     @Override
     public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
     }
 

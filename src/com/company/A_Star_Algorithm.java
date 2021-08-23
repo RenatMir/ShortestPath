@@ -21,7 +21,7 @@ public class A_Star_Algorithm {
 
         var swingWorker = new SwingWorker() {
             @Override
-            protected Object doInBackground() throws Exception {
+            protected Object doInBackground(){
 
                 Comparator<Node> stringLengthComparator = new Comparator<Node>() {
                     public int compare(Node node1, Node node2) {
