@@ -3,7 +3,6 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
 
 public class ContentPane extends JPanel implements MouseListener, ActionListener, MouseMotionListener {
 
@@ -32,9 +31,9 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         initializeMatrix();
 
         start = matrix[0][0];
-        finish = matrix[6][3];
+        finish = matrix[7][7];
 
-        new A_Star_Algorithm().a_Star(matrix, start, finish);
+        new A_Star_Algorithm().a_Star(matrix, start, finish, this);
 
     }
 
@@ -43,6 +42,11 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         for(int i = 0; i < NUM_OF_COLS; i++)
             for(int j = 0; j < NUM_OF_COLS; j++)
                 matrix[i][j] = new Node(i,j);
+        matrix[5][5].isWall = true;
+        matrix[4][5].isWall = true;
+        matrix[6][6].isWall = true;
+        matrix[7][6].isWall = true;
+
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -55,8 +59,11 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
             for (int j = 0; j < matrix.length; j++) {
                 if(matrix[i][j].isWall)
                     g.setColor(Color.BLACK);
-                else
+                else if(matrix[i][j].closed)
+                    g.setColor(Color.YELLOW);
+                else if(matrix[i][j].open)
                     g.setColor(Color.BLUE);
+                else g.setColor(Color.WHITE);
                 g.fillRect(j*CELL_WIDTH + 1,i * CELL_WIDTH + 1,CELL_WIDTH-1, CELL_WIDTH-1);
             }
         }

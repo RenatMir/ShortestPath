@@ -2,7 +2,9 @@ package com.company;
 
 public class Node {
     int x, y;
-    boolean isWall = false;
+    boolean isWall;
+    boolean open;
+    boolean closed;
     Node(int x, int y) {
         this.x = x;
         this.y = y;

@@ -1,4 +1,5 @@
 package com.company;
+import javax.swing.*;
 import java.util.*;
 
 public class A_Star_Algorithm {
@@ -6,48 +7,69 @@ public class A_Star_Algorithm {
     boolean[][] isVisited;
     int length;
     Node start, finish;
-    public void a_Star(Node[][] matrix, Node start, Node finish){
+    ContentPane pane;
 
+
+    public void a_Star(Node[][] matrix, Node start, Node finish, ContentPane pane){
+        this.pane = pane;
         this.start = start;
         this.finish = finish;
         length = matrix.length;
         isVisited = new boolean[length][length];
 
-        Comparator<Node> stringLengthComparator = new Comparator<Node>() {
-            public int compare(Node node1, Node node2) {
-                int f1 = calculateF(node1.x, node1.y);
-                int f2 = calculateF(node2.x, node2.y);
-                int compareResult = 0;
-                if(f1 < f2)
-                    compareResult = - 1;
-                else if(f1 > f2)
-                    compareResult = 1;
-                else if(calculateH(node1.x, node1.y) < calculateH(node2.x, node2.y))
-                    compareResult = -1;
+        var swingWorker = new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
 
-                return compareResult;
+                Comparator<Node> stringLengthComparator = new Comparator<Node>() {
+                    public int compare(Node node1, Node node2) {
+                        int f1 = calculateF(node1.x, node1.y);
+                        int f2 = calculateF(node2.x, node2.y);
+                        int compareResult = 0;
+                        if(f1 < f2)
+                            compareResult = - 1;
+                        else if(f1 > f2)
+                            compareResult = 1;
+                        else if(calculateH(node1.x, node1.y) < calculateH(node2.x, node2.y))
+                            compareResult = -1;
+
+                        return compareResult;
+                    }
+                };
+
+                List<Node> closed = new LinkedList<>();
+                Queue<Node> open = new PriorityQueue<>(stringLengthComparator);
+
+                open.add(matrix[start.x][start.y]);
+                closed.add(matrix[start.x][start.y]);
+
+                while(!open.isEmpty()){
+                    var current = open.remove();
+                    if(matrix[current.x][current.y] == matrix[finish.x][finish.y]) {
+                        System.out.println(closed);
+                        System.out.println("Finish");
+
+                        for(Node node : closed){
+                            node.closed = true;
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            pane.repaint();
+                        }
+                        break;
+                    }
+                    else {
+                        isVisited[current.x][current.y] = true;
+                        chooseNeighbor(current, matrix, open);
+                        closed.add(open.peek());
+                    }
+                }
+                return null;
             }
-        };
+        };swingWorker.execute();
 
-        List<Node> closed = new LinkedList<>();
-        Queue<Node> open = new PriorityQueue<>(stringLengthComparator);
-
-        open.add(matrix[start.x][start.y]);
-        closed.add(matrix[start.x][start.y]);
-
-        while(!open.isEmpty()){
-            var current = open.remove();
-            if(matrix[current.x][current.y] == matrix[finish.x][finish.y]) {
-                System.out.println(closed);
-                System.out.println("Finish");
-                break;
-            }
-            else {
-                isVisited[current.x][current.y] = true;
-                chooseNeighbor(current, matrix, open);
-                closed.add(open.peek());
-            }
-        }
     }
     public double calculateH(int x, int y){
         return Math.sqrt(Math.pow(x - finish.x,2) + Math.pow(y - finish.y,2));
@@ -82,6 +104,13 @@ public class A_Star_Algorithm {
 
             hasNeighbor = true;
             open.add(matrix[current.x + x][current.y + y]);
+            matrix[current.x + x][current.y + y].open = true;
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            pane.repaint();
 
             if(matrix[current.x + x][current.y + y] != finish)
                 isVisited[current.x + x][current.y + y] = true;
