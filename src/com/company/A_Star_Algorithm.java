@@ -45,7 +45,6 @@ public class A_Star_Algorithm {
                 open.add(start);
 
                 do{
-
                     var current = open.remove();
 
                     if(matrix[current.x][current.y] == finish) {
