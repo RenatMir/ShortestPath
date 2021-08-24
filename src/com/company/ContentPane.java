@@ -1,12 +1,14 @@
 package com.company;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Objects;
 import java.util.Random;
 
-public class ContentPane extends JPanel implements MouseListener, ActionListener, MouseMotionListener {
+public class ContentPane extends JPanel implements MouseListener, ActionListener, MouseMotionListener, ChangeListener {
 
     private static final int LEFT_PANEL_WIDTH = 200;
     private static final int RIGHT_PANEL_WIDTH = 600;
@@ -22,7 +24,9 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
     JPanel leftPanel;
     JButton startButton;
-    JComboBox<String> startFinish;
+    JButton cleatButton;
+    JComboBox<String> Functions;
+    JSlider matrixSize;
 
     ContentPane(){
         setPreferredSize(new Dimension(RIGHT_PANEL_WIDTH, HEIGHT));
@@ -46,15 +50,28 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         startButton = new JButton("Start");
         startButton.setFocusable(false);
         startButton.addActionListener(this);
-        startButton.setBounds(20,20,100,50);
+        startButton.setBounds(40,20,120,25);
 
-        String[] string = {"Start", "Finish"};
-        startFinish = new JComboBox<>(string);
-        startFinish.setBounds(20,100,150,50);
-        startFinish.addActionListener(this);
+        cleatButton = new JButton("Clear");
+        cleatButton.setFocusable(false);
+        cleatButton.addActionListener(this);
+        cleatButton.setBounds(40,175,120,25);
 
-        leftPanel.add(startFinish);
+        String[] string = {"Start", "Finish", "Create obstacles"};
+        Functions = new JComboBox<>(string);
+        Functions.setBounds(40,100,120,25);
+        Functions.addActionListener(this);
+
+        matrixSize = new JSlider(5,35, 20);
+        matrixSize.setBounds(40,215, 120,25);
+        matrixSize.setMajorTickSpacing(5);
+        matrixSize.setPaintTicks(true);
+        matrixSize.addChangeListener(this);
+
+        leftPanel.add(Functions);
         leftPanel.add(startButton);
+        leftPanel.add(cleatButton);
+        leftPanel.add(matrixSize);
 
 
 
@@ -77,6 +94,13 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
                     matrix[i][j].isWall = true;
             }
         }
+    }
+    public void clearMatrix(){
+        initializeMatrix();
+        start = null;
+        finish = null;
+        repaint();
+
     }
     public void paintComponent(Graphics g){
         super.paintComponent(g);
@@ -109,7 +133,7 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(Objects.equals(startFinish.getSelectedItem(), "Start")) {
+        if(Objects.equals(Functions.getSelectedItem(), "Start")) {
             int startY = e.getX() / CELL_WIDTH;
             int startX = e.getY() / CELL_WIDTH;
 
@@ -117,7 +141,7 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
                 start = matrix[startX][startY];
             }
         }
-        else if(Objects.equals(startFinish.getSelectedItem(), "Finish")){
+        else if(Objects.equals(Functions.getSelectedItem(), "Finish")){
             int endY = e.getX() / CELL_WIDTH;
             int endX = e.getY() / CELL_WIDTH;
 
@@ -131,10 +155,12 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == startButton){
-            new A_Star_Algorithm().a_Star(matrix, start, finish, this);
+            if(start != null && finish != null)
+                new A_Star_Algorithm().a_Star(matrix, start, finish, this);
         }
-        if(e.getSource() == startFinish)
-            System.out.println(startFinish.getSelectedItem());
+        if(e.getSource() == cleatButton){
+            clearMatrix();
+        }
     }
 
     @Override
@@ -159,16 +185,27 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        int Y = e.getX() / CELL_WIDTH;
-        int X = e.getY() / CELL_WIDTH;
+        if(Functions.getSelectedItem() == "Create obstacles") {
+            int Y = e.getX() / CELL_WIDTH;
+            int X = e.getY() / CELL_WIDTH;
 
-        matrix[X][Y].isWall = true;
-        repaint();
-
+            matrix[X][Y].isWall = true;
+            repaint();
+        }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
 
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if(e.getSource() == matrixSize){
+            NUM_OF_COLS = matrixSize.getValue();
+            CELL_WIDTH = RIGHT_PANEL_WIDTH / NUM_OF_COLS;
+            initializeMatrix();
+            repaint();
+        }
     }
 }

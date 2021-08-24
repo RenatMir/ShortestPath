@@ -53,6 +53,7 @@ public class A_Star_Algorithm {
                         while(matrix[current.x][current.y].getParent() != null){
                             closed.add(matrix[current.x][current.y]);
                             matrix[current.x][current.y].closed = true;
+
                             try {
                                 Thread.sleep(2);
                             } catch (InterruptedException e) {
