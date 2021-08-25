@@ -6,6 +6,7 @@ public class Node {
     boolean open;
     boolean closed;
     private Node parent;
+    boolean isDiagonal;
 
     Node(int x, int y) {
         this.x = x;

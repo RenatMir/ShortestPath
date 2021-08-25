@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class MyFrame extends JFrame {
 
-    ContentPane pane;
+    private static ContentPane pane;
     MyFrame(){
         pane = new ContentPane();
 
@@ -20,5 +20,17 @@ public class MyFrame extends JFrame {
     }
     public static void main(String[] args){
         new MyFrame();
+    }
+    public static void chooseAlgorithm(String choice){
+        switch (choice) {
+            case "A* algorithm" -> {
+                new A_Star_Algorithm(pane, pane.getStart(), pane.getFinish(), pane.getMatrix());
+                break;
+            }
+            case "Dijkstra algorithm" -> {
+                //new A_Star_Algorithm(pane, pane.getStart(), pane.getFinish());
+                break;
+            }
+        }
     }
 }

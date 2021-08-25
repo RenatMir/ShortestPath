@@ -9,16 +9,22 @@ public class A_Star_Algorithm {
     Node start;
     Node finish;
     ContentPane pane;
+    Node[][] matrix;
+    double distance = 0;
 
-
-    public void a_Star(Node[][] matrix, Node start, Node finish, ContentPane pane){
+     A_Star_Algorithm(ContentPane pane, Node start, Node finish, Node[][] matrix){
         this.pane = pane;
         this.start = start;
         start.setParent(null);
         this.finish = finish;
+        this.matrix = matrix;
         length = matrix.length;
         isVisited = new boolean[length][length];
 
+
+        a_Star();
+    }
+    private void a_Star(){
         var swingWorker = new SwingWorker() {
             @Override
             protected Object doInBackground(){
@@ -31,7 +37,11 @@ public class A_Star_Algorithm {
                         if(f1 < f2)
                             compareResult = - 1;
                         else if(f1 > f2)
-                            compareResult = 1;
+                            if(calculateH(node1.x, node1.y) < calculateH(node2.x, node2.y)) {
+                                compareResult = -1;
+                            }
+                            else
+                                compareResult = 1;
                         else if(calculateH(node1.x, node1.y) < calculateH(node2.x, node2.y))
                             compareResult = -1;
 
@@ -44,15 +54,22 @@ public class A_Star_Algorithm {
 
                 open.add(start);
 
-                do{
+                while (true){
                     var current = open.remove();
 
                     if(matrix[current.x][current.y] == finish) {
                         System.out.println("Finish");
 
+
                         while(matrix[current.x][current.y].getParent() != null){
                             closed.add(matrix[current.x][current.y]);
                             matrix[current.x][current.y].closed = true;
+
+                            if(matrix[current.x][current.y].isDiagonal)
+                                distance += 1.4;
+                            else
+                                distance++;
+
 
                             try {
                                 Thread.sleep(2);
@@ -65,6 +82,9 @@ public class A_Star_Algorithm {
                         closed.add(start);
                         Collections.reverse(closed);
                         System.out.println(closed);
+                        pane.setDistance(distance);
+                        //System.out.println("Distance is: " + distance);
+
                         break;
                     }
                     else {
@@ -75,7 +95,7 @@ public class A_Star_Algorithm {
                         System.out.println("There is no path");
                         break;
                     }
-                }while (!open.isEmpty());
+                }
                 return null;
             }
         };swingWorker.execute();
@@ -93,14 +113,14 @@ public class A_Star_Algorithm {
 
     public void chooseNeighbor(Node current, Node[][] matrix, Queue<Node> open){
         hasNeighbor = false;
-        checkNodeValid(current, -1,-1,matrix, open);
-        checkNodeValid(current, -1,0,matrix, open);
-        checkNodeValid(current, -1,1,matrix, open);
-        checkNodeValid(current, 0,-1,matrix, open);
-        checkNodeValid(current, 0,1,matrix, open);
-        checkNodeValid(current, 1,-1,matrix, open);
-        checkNodeValid(current, 1,0,matrix, open);
-        checkNodeValid(current, 1,1,matrix, open);
+        checkNodeValid(current, -1,-1,matrix, open); //left top
+        checkNodeValid(current, -1,0,matrix, open);  //top
+        checkNodeValid(current, -1,1,matrix, open);  //right top
+        checkNodeValid(current, 0,-1,matrix, open);  //left
+        checkNodeValid(current, 0,1,matrix, open);   //right
+        checkNodeValid(current, 1,-1,matrix, open);  //left bottom
+        checkNodeValid(current, 1,0,matrix, open);   //bottom
+        checkNodeValid(current, 1,1,matrix, open);   //right bottom
         if(!hasNeighbor)
             open.remove(current);
     }
@@ -111,6 +131,8 @@ public class A_Star_Algorithm {
                 && ((current.y + y >= 0) && (current.y + y <= length-1)
                 && !matrix[current.x + x][current.y + y].isWall)
                 && !isVisited[current.x + x][current.y + y]){
+
+            matrix[current.x + x][current.y + y].isDiagonal = x != 0 && y != 0;
 
             hasNeighbor = true;
             open.add(matrix[current.x + x][current.y + y]);

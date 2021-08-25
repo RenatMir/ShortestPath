@@ -17,16 +17,21 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     private static int CELL_WIDTH = RIGHT_PANEL_WIDTH / NUM_OF_COLS;
 
     Random random;
-    protected Node start;
-    protected Node finish;
+    private Node start;
+    private Node finish;
 
     private Node[][] matrix;
 
     JPanel leftPanel;
     JButton startButton;
     JButton cleatButton;
-    JComboBox<String> Functions;
+    JComboBox<String> functions;
+    JComboBox<String> shortestPathAlgorithm;
     JSlider matrixSize;
+    JLabel functionsText;
+    JLabel algorithm;
+    JLabel distanceText;
+    JLabel distanceNumber;
 
     ContentPane(){
         setPreferredSize(new Dimension(RIGHT_PANEL_WIDTH, HEIGHT));
@@ -50,32 +55,54 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
         startButton = new JButton("Start");
         startButton.setFocusable(false);
         startButton.addActionListener(this);
-        startButton.setBounds(40,20,120,25);
+        startButton.setBounds(40,35,120,25);
 
         cleatButton = new JButton("Clear");
         cleatButton.setFocusable(false);
         cleatButton.addActionListener(this);
-        cleatButton.setBounds(40,175,120,25);
+        cleatButton.setBounds(40,HEIGHT - 100,120,25);
 
-        String[] string = {"Start", "Finish", "Create obstacles"};
-        Functions = new JComboBox<>(string);
-        Functions.setBounds(40,100,120,25);
-        Functions.addActionListener(this);
+        String[] function = {"Start", "Finish", "Create obstacles"};
+        functions = new JComboBox<>(function);
+        functions.setBounds(40,100,120,25);
+        functions.addActionListener(this);
+        functions.setFocusable(false);
+        functionsText = new JLabel("Function : ");
+        functionsText.setBounds(40, 80,120,15);
+
+        String[] chooseAlgorithm = {"A* algorithm", "Dijkstra algorithm"};
+        shortestPathAlgorithm = new JComboBox<>(chooseAlgorithm);
+        shortestPathAlgorithm.setBounds(40,150,120,25);
+        shortestPathAlgorithm.addActionListener(this);
+        shortestPathAlgorithm.setFocusable(false);
+        algorithm = new JLabel("Algorithm : ");
+        algorithm.setBounds(40, 130,120,15);
 
         matrixSize = new JSlider(5,35, 20);
-        matrixSize.setBounds(40,215, 120,25);
+        matrixSize.setBounds(40,215, 120,35);
         matrixSize.setMajorTickSpacing(5);
         matrixSize.setPaintTicks(true);
         matrixSize.addChangeListener(this);
 
-        leftPanel.add(Functions);
+        distanceText = new JLabel("Distance: ");
+        distanceText.setBounds(40, HEIGHT-150, 70,15);
+        distanceNumber = new JLabel();
+        distanceNumber.setBounds(120, HEIGHT-150, 50,15);
+
+        leftPanel.add(functions);
         leftPanel.add(startButton);
         leftPanel.add(cleatButton);
         leftPanel.add(matrixSize);
+        leftPanel.add(functionsText);
+        leftPanel.add(shortestPathAlgorithm);
+        leftPanel.add(algorithm);
+        leftPanel.add(distanceText);
+        leftPanel.add(distanceNumber);
 
 
 
         initializeMatrix();
+
         //randomObstacles();
     }
 
@@ -87,6 +114,9 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
             }
         }
     }
+    public void setDistance(double distance){
+        distanceNumber.setText("" + (int)distance);
+    }
     public void randomObstacles(){
         for(int i = 0; i < NUM_OF_COLS; i++) {
             for (int j = 0; j < NUM_OF_COLS; j++) {
@@ -97,8 +127,8 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     }
     public void clearMatrix(){
         initializeMatrix();
-        start = null;
-        finish = null;
+        setStart(null);
+        setFinish(null);
         repaint();
 
     }
@@ -121,48 +151,86 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
                 g.fillRect(j*CELL_WIDTH + 1,i * CELL_WIDTH + 1,CELL_WIDTH-1, CELL_WIDTH-1);
             }
         }
-        if(start != null) {
+        if(getStart() != null) {
             g.setColor(Color.green);
-            g.fillRect(start.y * CELL_WIDTH + 1, start.x * CELL_WIDTH + 1, CELL_WIDTH - 1, CELL_WIDTH - 1);
+            g.fillRect(getStart().y * CELL_WIDTH + 1, getStart().x * CELL_WIDTH + 1, CELL_WIDTH - 1, CELL_WIDTH - 1);
         }
-        if(finish != null) {
+        if(getFinish() != null) {
             g.setColor(Color.red);
-            g.fillRect(finish.y * CELL_WIDTH + 1, finish.x * CELL_WIDTH + 1, CELL_WIDTH - 1, CELL_WIDTH - 1);
+            g.fillRect(getFinish().y * CELL_WIDTH + 1, getFinish().x * CELL_WIDTH + 1, CELL_WIDTH - 1, CELL_WIDTH - 1);
         }
+    }
+    public Node getStart(){
+        return start;
+    }
+    public Node getFinish(){
+        return finish;
+    }
+    public void setFinish(Node node){
+        finish = node;
+    }
+    public void setStart(Node node){
+        start = node;
+    }
+    public Node[][] getMatrix(){
+        return matrix;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(Objects.equals(Functions.getSelectedItem(), "Start")) {
+        if(Objects.equals(functions.getSelectedItem(), "Start")) {
             int startY = e.getX() / CELL_WIDTH;
             int startX = e.getY() / CELL_WIDTH;
 
             if(!matrix[startX][startY].isWall) {
-                start = matrix[startX][startY];
+                setStart(matrix[startX][startY]);
             }
         }
-        else if(Objects.equals(Functions.getSelectedItem(), "Finish")){
+        else if(Objects.equals(functions.getSelectedItem(), "Finish")){
             int endY = e.getX() / CELL_WIDTH;
             int endX = e.getY() / CELL_WIDTH;
 
             if(!matrix[endX][endY].isWall)
-                finish = matrix[endX][endY];
+                setFinish(matrix[endX][endY]);
         }
-
         repaint();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == startButton){
-            if(start != null && finish != null)
-                new A_Star_Algorithm().a_Star(matrix, start, finish, this);
+            if(getStart() != null && getFinish() != null)
+                MyFrame.chooseAlgorithm(shortestPathAlgorithm.getSelectedItem().toString());
         }
         if(e.getSource() == cleatButton){
             clearMatrix();
         }
     }
 
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if(functions.getSelectedItem() == "Create obstacles") {
+            int Y = e.getX() / CELL_WIDTH;
+            int X = e.getY() / CELL_WIDTH;
+
+            matrix[X][Y].isWall = true;
+            repaint();
+        }
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if(e.getSource() == matrixSize){
+            NUM_OF_COLS = matrixSize.getValue();
+            CELL_WIDTH = RIGHT_PANEL_WIDTH / NUM_OF_COLS;
+            initializeMatrix();
+            repaint();
+        }
+    }
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+    }
     @Override
     public void mousePressed(MouseEvent e) {
 
@@ -181,31 +249,5 @@ public class ContentPane extends JPanel implements MouseListener, ActionListener
     @Override
     public void mouseExited(MouseEvent e) {
 
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        if(Functions.getSelectedItem() == "Create obstacles") {
-            int Y = e.getX() / CELL_WIDTH;
-            int X = e.getY() / CELL_WIDTH;
-
-            matrix[X][Y].isWall = true;
-            repaint();
-        }
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        if(e.getSource() == matrixSize){
-            NUM_OF_COLS = matrixSize.getValue();
-            CELL_WIDTH = RIGHT_PANEL_WIDTH / NUM_OF_COLS;
-            initializeMatrix();
-            repaint();
-        }
     }
 }
