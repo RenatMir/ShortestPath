@@ -83,7 +83,6 @@ public class A_Star_Algorithm {
                         Collections.reverse(closed);
                         System.out.println(closed);
                         pane.setDistance(distance);
-                        //System.out.println("Distance is: " + distance);
 
                         break;
                     }
