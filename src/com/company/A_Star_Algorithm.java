@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.util.*;
 
 public class A_Star_Algorithm {
+    private static SwingWorker swingWorker;
     boolean hasNeighbor;
     boolean[][] isVisited;
     int length;
@@ -10,7 +11,7 @@ public class A_Star_Algorithm {
     Node finish;
     ContentPane pane;
     Node[][] matrix;
-    double distance = 0;
+    int distance = 0;
 
      A_Star_Algorithm(ContentPane pane, Node start, Node finish, Node[][] matrix){
         this.pane = pane;
@@ -21,11 +22,10 @@ public class A_Star_Algorithm {
         length = matrix.length;
         isVisited = new boolean[length][length];
 
-
         a_Star();
     }
     private void a_Star(){
-        var swingWorker = new SwingWorker() {
+         swingWorker = new SwingWorker() {
             @Override
             protected Object doInBackground(){
 
@@ -33,57 +33,57 @@ public class A_Star_Algorithm {
                     public int compare(Node node1, Node node2) {
                         int f1 = calculateF(node1.x, node1.y);
                         int f2 = calculateF(node2.x, node2.y);
-                        int compareResult = 0;
+                        int compareResult;
                         if(f1 < f2)
                             compareResult = - 1;
-                        else if(f1 > f2)
-                            if(calculateH(node1.x, node1.y) < calculateH(node2.x, node2.y)) {
-                                compareResult = -1;
-                            }
-                            else
-                                compareResult = 1;
                         else if(calculateH(node1.x, node1.y) < calculateH(node2.x, node2.y))
                             compareResult = -1;
+                        else
+                            compareResult = 1;
 
                         return compareResult;
                     }
                 };
 
+                ContentPane.setIsStarted(true);
                 List<Node> closed = new ArrayList<>();
                 Queue<Node> open = new PriorityQueue<>(stringLengthComparator);
 
                 open.add(start);
 
                 while (true){
-                    var current = open.remove();
+                    if(isCancelled()) {
+                        ContentPane.setIsStarted(false);
+                        return null;
+                    }
 
+                    var current = open.remove();
+                    System.out.println(current);
                     if(matrix[current.x][current.y] == finish) {
                         System.out.println("Finish");
 
-
                         while(matrix[current.x][current.y].getParent() != null){
+                            if(isCancelled()) {
+                                ContentPane.setIsStarted(false);
+                                return null;
+                            }
+
                             closed.add(matrix[current.x][current.y]);
                             matrix[current.x][current.y].closed = true;
 
-                            if(matrix[current.x][current.y].isDiagonal)
-                                distance += 1.4;
-                            else
-                                distance++;
-
-
-                            try {
-                                Thread.sleep(2);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            if(matrix[current.x][current.y].isDiagonal) {
+                                distance += 14;
                             }
-                            pane.repaint();
+                            else
+                                distance += 10;
+
+                            pane.waitRepaint();
+                            //System.out.println(calculateG(matrix[current.x][current.y].x,matrix[current.x][current.y].y) + ", " + distance);
                             matrix[current.x][current.y] = matrix[current.x][current.y].getParent();
                         }
                         closed.add(start);
                         Collections.reverse(closed);
-                        System.out.println(closed);
                         pane.setDistance(distance);
-
                         break;
                     }
                     else {
@@ -95,10 +95,14 @@ public class A_Star_Algorithm {
                         break;
                     }
                 }
+                ContentPane.setIsStarted(false);
                 return null;
             }
         };swingWorker.execute();
 
+    }
+    public static void stop(){
+         swingWorker.cancel(true);
     }
     public double calculateH(int x, int y){
         return Math.sqrt(Math.pow(x - finish.x,2) + Math.pow(y - finish.y,2));
@@ -138,12 +142,7 @@ public class A_Star_Algorithm {
             matrix[current.x + x][current.y + y].open = true;
             matrix[current.x + x][current.y + y].setParent(current);
 
-            try {
-                Thread.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            pane.repaint();
+            pane.waitRepaint();
 
             if(matrix[current.x + x][current.y + y] != finish)
                 isVisited[current.x + x][current.y + y] = true;
